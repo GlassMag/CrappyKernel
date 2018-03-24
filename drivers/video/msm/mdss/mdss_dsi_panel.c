@@ -28,6 +28,7 @@
 #include "mdss_debug.h"
 #ifdef TARGET_HW_MDSS_HDMI
 #include "mdss_dba_utils.h"
+#endif
 
 #ifdef CONFIG_POWERSUSPEND
 #include <linux/powersuspend.h>
