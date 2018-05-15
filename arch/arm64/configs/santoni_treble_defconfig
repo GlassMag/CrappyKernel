@@ -1067,6 +1067,15 @@ CONFIG_IPC_ROUTER_SECURITY=y
 CONFIG_HAVE_BPF_JIT=y
 
 #
+<<<<<<< HEAD:arch/arm64/configs/santoni_treble_defconfig
+=======
+# Custom Hotplug drivers
+#
+CONFIG_CUSTOM_HOTPLUG=y
+CONFIG_THUNDERPLUG_CONTROL=y
+CONFIG_ALUCARD_CONTROL=y
+#
+>>>>>>> 5801f80... :sparkles: Added Alucard hotplug (default):arch/arm64/configs/santoni_defconfig
 # Device Drivers
 #
 

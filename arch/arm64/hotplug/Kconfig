@@ -3,10 +3,9 @@ menu "Custom Hotplug drivers"
 config CUSTOM_HOTPLUG
 	bool "Enable custom hotplug support"
 
-config THUNDERPLUG_CONTROL
-	bool "Thunderplug"
+config ALUCARD_CONTROL
+	bool "Alucard"
 	depends on CUSTOM_HOTPLUG
 	help
-	  This driver hotplugs cpu cores based on per-core load
-
+	  Known for being battery friendly. Developed by Alucard_24@XDA
 endmenu
