@@ -939,6 +939,9 @@ config QCOM_EARLY_RANDOM
 config QCOM_QDSS_BRIDGE
 	bool "Configure bridge driver for Qualcomm Technologies, Inc. MDM"
 	depends on MSM_MHI
+	config MSM_BGCOM_INTERFACE
+	bool "Driver support for Blackghost Communication"
+	depends on MSM_BGCOM
 	help
 	  The driver will help route diag traffic over the QDSS sub-system to
 	  USB on APPS side. The driver acts as a bridge between the PCIE MHI
@@ -967,3 +970,17 @@ config WCD_DSP_GLINK
 source "drivers/soc/qcom/memshare/Kconfig"
 
 endif # ARCH_MSM
+config BIG_CLUSTER_MIN_FREQ_ADJUST
+	bool "Adjust BIG cluster min frequency based on power collapse state"
+	default n
+	help
+	  This driver is used to set the floor of the min frequency of big cluster
+	  to the user specified value when the cluster is not power collapsed. When
+	  the cluster is power collpsed it resets the value to physical limits.
+
+config STATE_NOTIFIER
+	bool "State Notifier"
+	default n
+	help
+	  A unified display state notifier for kernel drivers for easy porting
+	  between different devices.
