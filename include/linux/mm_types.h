@@ -206,6 +206,9 @@ struct page {
 	gfp_t gfp_mask;
 	struct stack_trace trace;
 	unsigned long trace_entries[8];
+
+#ifdef CONFIG_ANDROID_SIMPLE_LMK
+	bool reserved_for_lmk;
 #endif
 }
 /*
