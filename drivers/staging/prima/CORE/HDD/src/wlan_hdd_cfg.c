@@ -4035,6 +4035,11 @@ REG_VARIABLE( CFG_EXTSCAN_ENABLE, WLAN_PARAM_Integer,
                 CFG_FORCE_RSNE_OVERRIDE_MIN,
                 CFG_FORCE_RSNE_OVERRIDE_MAX),
 
+  REG_VARIABLE_STRING(CFG_ENABLE_DEFAULT_SAP, WLAN_PARAM_String,
+                      hdd_config_t, enabledefaultSAP,
+                      VAR_FLAGS_NONE,
+                      (void *)CFG_ENABLE_DEFAULT_SAP_DEFAULT),
+
 };
 
 /*
