@@ -1067,15 +1067,12 @@ CONFIG_IPC_ROUTER_SECURITY=y
 CONFIG_HAVE_BPF_JIT=y
 
 #
-<<<<<<< HEAD:arch/arm64/configs/santoni_treble_defconfig
-=======
 # Custom Hotplug drivers
 #
 CONFIG_CUSTOM_HOTPLUG=y
 CONFIG_THUNDERPLUG_CONTROL=y
 CONFIG_ALUCARD_CONTROL=y
 #
->>>>>>> 5801f80... :sparkles: Added Alucard hotplug (default):arch/arm64/configs/santoni_defconfig
 # Device Drivers
 #
 
@@ -2849,6 +2846,8 @@ CONFIG_FB_MSM_MDSS_WRITEBACK=y
 # CONFIG_FB_MSM_MDSS_MDP3 is not set
 CONFIG_FB_MSM_MDSS_XLOG_DEBUG=y
 # CONFIG_FB_MSM_MDSS_FRC_DEBUG is not set
+CONFIG_FB_MSM_MDSS_KCAL_CTRL=y
+CONFIG_KLAPSE=y
 # CONFIG_FB_SSD1307 is not set
 CONFIG_BACKLIGHT_LCD_SUPPORT=y
 CONFIG_LCD_CLASS_DEVICE=m
