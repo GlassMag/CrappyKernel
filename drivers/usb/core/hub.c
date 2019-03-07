@@ -1162,16 +1162,6 @@ static void hub_activate(struct usb_hub *hub, enum hub_activation_type type)
 						   USB_PORT_FEAT_ENABLE);
 		}
 
-		/*
-		 * Add debounce if USB3 link is in polling/link training state.
-		 * Link will automatically transition to Enabled state after
-		 * link training completes.
-		 */
-		if (hub_is_superspeed(hdev) &&
-		    ((portstatus & USB_PORT_STAT_LINK_STATE) ==
-						USB_SS_PORT_LS_POLLING))
-			need_debounce_delay = true;
-
 		/* Clear status-change flags; we'll debounce later */
 		if (portchange & USB_PORT_STAT_C_CONNECTION) {
 			need_debounce_delay = true;
@@ -2165,12 +2155,6 @@ void usb_disconnect(struct usb_device **pdev)
 	usb_set_device_state(udev, USB_STATE_NOTATTACHED);
 	dev_info(&udev->dev, "USB disconnect, device number %d\n",
 			udev->devnum);
-
-	/*
-	 * Ensure that the pm runtime code knows that the USB device
-	 * is in the process of being disconnected.
-	 */
-	pm_runtime_barrier(&udev->dev);
 
 	usb_lock_device(udev);
 
