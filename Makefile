@@ -628,6 +628,9 @@ KBUILD_CFLAGS  += $(call cc-disable-warning, stringop-overflow)
 KBUILD_CFLAGS  += $(call cc-option,-fno-PIE)
 KBUILD_AFLAGS  += $(call cc-option,-fno-PIE)
 
+# Graphite Optimization
+KBUILD_CFLAGS  += -floop-nest-optimize -fgraphite-identity -ftree-loop-distribution
+
 # Disable maybe-uninitialized warnings
 KBUILD_CFLAGS  += $(call cc-disable-warning,maybe-uninitialized,)
 # Disable unused-constant-variable warnings
