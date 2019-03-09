@@ -20,6 +20,7 @@
 
 #ifndef AT_VECTOR_SIZE_ARCH
 #define AT_VECTOR_SIZE_ARCH 0
+
 #endif
 #define AT_VECTOR_SIZE (2*(AT_VECTOR_SIZE_ARCH + AT_VECTOR_SIZE_BASE + 1))
 
@@ -206,7 +207,7 @@ struct page {
 	gfp_t gfp_mask;
 	struct stack_trace trace;
 	unsigned long trace_entries[8];
-
+#endif
 #ifdef CONFIG_ANDROID_SIMPLE_LMK
 	bool reserved_for_lmk;
 #endif
