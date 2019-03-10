@@ -27,7 +27,6 @@ obj-$(CONFIG_IOSCHED_FIOPS)     += fiops-iosched.o
 obj-$(CONFIG_IOSCHED_SIO)       += sio-iosched.o
 obj-$(CONFIG_IOSCHED_MAPLE)     += maple-iosched.o
 obj-$(CONFIG_IOSCHED_SWITCHER)  += iosched_switcher.o
-obj-$(CONFIG_IOSCHED_BFQ)	+= bfq-iosched.o
 
 >>>>>>> 5daf3c9... block: [Introduded for 3.18.y] Add Maple I/O Scheduler
 obj-$(CONFIG_BLOCK_COMPAT)	+= compat_ioctl.o
