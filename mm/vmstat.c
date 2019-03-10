@@ -22,8 +22,6 @@
 #include <linux/writeback.h>
 #include <linux/compaction.h>
 #include <linux/mm_inline.h>
-#include <linux/page_ext.h>
-#include <linux/page_owner.h>
 
 #include "internal.h"
 
@@ -1036,16 +1034,6 @@ static void pagetypeinfo_showmixedcount_print(struct seq_file *m,
 
 	/* Align PFNs to pageblock_nr_pages boundary */
 	pfn = start_pfn & ~(pageblock_nr_pages-1);
-	struct page *page;
-	struct page_ext *page_ext;
-	unsigned long pfn = zone->zone_start_pfn, block_end_pfn;
-	unsigned long end_pfn = pfn + zone->spanned_pages;
-	unsigned long count[MIGRATE_TYPES] = { 0, };
-	int pageblock_mt, page_mt;
-	int i;
-
-	/* Scan block by block. First and last block may be incomplete */
-	pfn = zone->zone_start_pfn;
 
 	/*
 	 * Walk the zone in pageblock_nr_pages steps. If a page block spans
@@ -1096,54 +1084,13 @@ static void pagetypeinfo_showmixedcount_print(struct seq_file *m,
 
 			/* Move to end of this allocation */
 			offset += (1 << page->order) - 1;
-	for (; pfn < end_pfn; ) {
-		if (!pfn_valid(pfn)) {
-			pfn = ALIGN(pfn + 1, MAX_ORDER_NR_PAGES);
-			continue;
-		}
-
-		block_end_pfn = ALIGN(pfn + 1, pageblock_nr_pages);
-		block_end_pfn = min(block_end_pfn, end_pfn);
-
-		page = pfn_to_page(pfn);
-		pageblock_mt = get_pfnblock_migratetype(page, pfn);
-
-		for (; pfn < block_end_pfn; pfn++) {
-			if (!pfn_valid_within(pfn))
-				continue;
-
-			page = pfn_to_page(pfn);
-			if (PageBuddy(page)) {
-				pfn += (1UL << page_order(page)) - 1;
-				continue;
-			}
-
-			if (PageReserved(page))
-				continue;
-
-			page_ext = lookup_page_ext(page);
-
-			if (!test_bit(PAGE_EXT_OWNER, &page_ext->flags))
-				continue;
-
-			page_mt = gfpflags_to_migratetype(page_ext->gfp_mask);
-			if (pageblock_mt != page_mt) {
-				if (is_migrate_cma(pageblock_mt))
-					count[MIGRATE_MOVABLE]++;
-				else
-					count[pageblock_mt]++;
-
-				pfn = block_end_pfn;
-				break;
-			}
-			pfn += (1UL << page_ext->order) - 1;
 		}
 	}
 
 	/* Print counts */
 	seq_printf(m, "Node %d, zone %8s ", pgdat->node_id, zone->name);
-	for (i = 0; i < MIGRATE_TYPES; i++)
-		seq_printf(m, "%12lu ", count[i]);
+	for (mtype = 0; mtype < MIGRATE_TYPES; mtype++)
+		seq_printf(m, "%12lu ", count[mtype]);
 	seq_putc(m, '\n');
 }
 #endif /* CONFIG_PAGE_OWNER */
@@ -1158,11 +1105,6 @@ static void pagetypeinfo_showmixedcount(struct seq_file *m, pg_data_t *pgdat)
 {
 #ifdef CONFIG_PAGE_OWNER
 	int mtype;
-
-	if (!page_owner_inited)
-		return;
-
-	drain_all_pages(NULL);
 
 	seq_printf(m, "\n%-23s", "Number of mixed blocks ");
 	for (mtype = 0; mtype < MIGRATE_TYPES; mtype++)
