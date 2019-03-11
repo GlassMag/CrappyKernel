@@ -44,7 +44,6 @@ insert_line fstab.qcom "data        f2fs" before "data        ext4" "/dev/block/
 insert_line fstab.qcom "cache        f2fs" after "data        ext4" "/dev/block/bootdevice/by-name/cache     /cache        f2fs    nosuid,nodev,noatime,inline_xattr,flush_merge,data_flush wait,formattable,check";
 fi;
 backup_file init.rc;
-grep "import /init.spectrum.rc" init.rc >/dev/null || sed -i '1,/.*import.*/s/.*import.*/import \/init.spectrum.rc\n&/' init.rc
 	
 # end ramdisk changes
 
@@ -52,19 +51,5 @@ write_boot;
 
 ## end install
 
-# Add empty profile locations
-		if [ ! -d /data/media/Spectrum ]; then
-		  ui_print "Installing Spectrum...";
-		  mkdir /data/media/0/Spectrum;
-		fi
-		if [ ! -d /data/media/Spectrum/profiles ]; then
-		  mkdir /data/media/0/Spectrum/profiles;
-		fi
-		if [ ! -d /data/media/Spectrum/profiles/*.profile ]; then
-		  touch /data/media/0/Spectrum/profiles/balance.profile;
-		  touch /data/media/0/Spectrum/profiles/performance.profile;
-		  touch /data/media/0/Spectrum/profiles/battery.profile;
-		  touch /data/media/0/Spectrum/profiles/gaming.profile;
-		fi
 		
 		
