@@ -1,5 +1,5 @@
 # AnyKernel2 Ramdisk Mod Script
-# osm0sis @ xda-developers
+# osm0sis @ xda-developer
 
 ## AnyKernel setup
 # begin properties
