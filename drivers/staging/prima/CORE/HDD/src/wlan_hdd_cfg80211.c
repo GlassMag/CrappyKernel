@@ -4318,6 +4318,42 @@ void wlan_hdd_cfg80211_extscan_callback(void *ctx, const tANI_U16 evType,
     EXIT();
 }
 
+static bool wlan_hdd_is_extscan_supported(hdd_adapter_t *adapter,
+					  hdd_context_t *hdd_ctx)
+{
+	int status;
+
+	status = wlan_hdd_validate_context(hdd_ctx);
+	if (status)
+		return false;
+
+	if (!adapter) {
+		hddLog(VOS_TRACE_LEVEL_ERROR, FL("Invalid adapter"));
+		return false;
+	}
+
+	if (adapter->device_mode != WLAN_HDD_INFRA_STATION) {
+		hddLog(VOS_TRACE_LEVEL_INFO,
+		       FL("ext scans only supported on STA ifaces"));
+		return false;
+	}
+
+	if (VOS_FTM_MODE == hdd_get_conparam()) {
+		hddLog(LOGE, FL("Command not allowed in FTM mode"));
+		return false;
+	}
+
+	/* check the EXTScan Capability */
+	if ( (TRUE != hdd_ctx->cfg_ini->fEnableEXTScan) ||
+	     (TRUE != sme_IsFeatureSupportedByFW(EXTENDED_SCAN)) ||
+	     (TRUE != sme_IsFeatureSupportedByFW(EXT_SCAN_ENHANCED))) {
+		hddLog(VOS_TRACE_LEVEL_ERROR,
+		       FL("EXTScan not enabled/supported by Firmware"));
+		return false;
+	}
+	return true;
+}
+
 static int __wlan_hdd_cfg80211_extscan_get_capabilities(struct wiphy *wiphy,
                                                         struct wireless_dev *wdev,
                                                         const void *data, int dataLen)
@@ -4335,20 +4371,8 @@ static int __wlan_hdd_cfg80211_extscan_get_capabilities(struct wiphy *wiphy,
 
     ENTER();
 
-    status = wlan_hdd_validate_context(pHddCtx);
-    if (0 != status)
-    {
+    if (!wlan_hdd_is_extscan_supported(pAdapter, pHddCtx))
         return -EINVAL;
-    }
-    /* check the EXTScan Capability */
-    if ( (TRUE != pHddCtx->cfg_ini->fEnableEXTScan) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXTENDED_SCAN)) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXT_SCAN_ENHANCED)))
-    {
-        hddLog(VOS_TRACE_LEVEL_ERROR,
-               FL("EXTScan not enabled/supported by Firmware"));
-        return -EINVAL;
-    }
 
     if (nla_parse(tb, QCA_WLAN_VENDOR_ATTR_EXTSCAN_SUBCMD_CONFIG_PARAM_MAX,
                     data, dataLen,
@@ -4430,25 +4454,8 @@ static int __wlan_hdd_cfg80211_extscan_get_cached_results(struct wiphy *wiphy,
 
     ENTER();
 
-    if (VOS_FTM_MODE == hdd_get_conparam()) {
-        hddLog(LOGE, FL("Command not allowed in FTM mode"));
+    if (!wlan_hdd_is_extscan_supported(pAdapter, pHddCtx))
         return -EINVAL;
-    }
-
-    status = wlan_hdd_validate_context(pHddCtx);
-    if (0 != status)
-    {
-        return -EINVAL;
-    }
-    /* check the EXTScan Capability */
-    if ( (TRUE != pHddCtx->cfg_ini->fEnableEXTScan) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXTENDED_SCAN)) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXT_SCAN_ENHANCED)))
-    {
-        hddLog(VOS_TRACE_LEVEL_ERROR,
-               FL("EXTScan not enabled/supported by Firmware"));
-        return -EINVAL;
-    }
 
     if (nla_parse(tb, QCA_WLAN_VENDOR_ATTR_EXTSCAN_SUBCMD_CONFIG_PARAM_MAX,
                     data, dataLen,
@@ -4552,25 +4559,8 @@ static int __wlan_hdd_cfg80211_extscan_set_bssid_hotlist(struct wiphy *wiphy,
 
     ENTER();
 
-    if (VOS_FTM_MODE == hdd_get_conparam()) {
-        hddLog(LOGE, FL("Command not allowed in FTM mode"));
+    if (!wlan_hdd_is_extscan_supported(pAdapter, pHddCtx))
         return -EINVAL;
-    }
-
-    status = wlan_hdd_validate_context(pHddCtx);
-    if (0 != status)
-    {
-        return -EINVAL;
-    }
-    /* check the EXTScan Capability */
-    if ( (TRUE != pHddCtx->cfg_ini->fEnableEXTScan) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXTENDED_SCAN)) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXT_SCAN_ENHANCED)))
-    {
-        hddLog(VOS_TRACE_LEVEL_ERROR,
-               FL("EXTScan not enabled/supported by Firmware"));
-        return -EINVAL;
-    }
 
     if (nla_parse(tb, QCA_WLAN_VENDOR_ATTR_EXTSCAN_SUBCMD_CONFIG_PARAM_MAX,
                     data, dataLen,
@@ -4749,11 +4739,8 @@ static int __wlan_hdd_cfg80211_extscan_get_valid_channels(struct wiphy *wiphy,
 
     ENTER();
 
-    status = wlan_hdd_validate_context(pHddCtx);
-    if (0 != status)
-    {
+    if (!wlan_hdd_is_extscan_supported(pAdapter, pHddCtx))
         return -EINVAL;
-    }
 
     if (nla_parse(tb, QCA_WLAN_VENDOR_ATTR_EXTSCAN_SUBCMD_CONFIG_PARAM_MAX,
                   data, dataLen,
@@ -5102,6 +5089,11 @@ static int hdd_extscan_start_fill_bucket_channel_spec(
             j++;
        }
 
+       if (j != pReqMsg->buckets[bktIndex].numChannels) {
+            hddLog(LOG1, FL("Input parameters didn't match"));
+            return -EINVAL;
+       }
+
        bktIndex++;
     }
 
@@ -5145,25 +5137,8 @@ static int __wlan_hdd_cfg80211_extscan_start(struct wiphy *wiphy,
 
     ENTER();
 
-    if (VOS_FTM_MODE == hdd_get_conparam()) {
-        hddLog(LOGE, FL("Command not allowed in FTM mode"));
+    if (!wlan_hdd_is_extscan_supported(pAdapter, pHddCtx))
         return -EINVAL;
-    }
-
-    status = wlan_hdd_validate_context(pHddCtx);
-    if (0 != status)
-    {
-        return -EINVAL;
-    }
-    /* check the EXTScan Capability */
-    if ( (TRUE != pHddCtx->cfg_ini->fEnableEXTScan) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXTENDED_SCAN)) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXT_SCAN_ENHANCED)))
-    {
-        hddLog(VOS_TRACE_LEVEL_ERROR,
-               FL("EXTScan not enabled/supported by Firmware"));
-        return -EINVAL;
-    }
 
     if (nla_parse(tb, PARAM_MAX,
                     data, dataLen,
@@ -5339,25 +5314,8 @@ static int __wlan_hdd_cfg80211_extscan_stop(struct wiphy *wiphy,
 
     ENTER();
 
-    if (VOS_FTM_MODE == hdd_get_conparam()) {
-        hddLog(LOGE, FL("Command not allowed in FTM mode"));
+    if (!wlan_hdd_is_extscan_supported(pAdapter, pHddCtx))
         return -EINVAL;
-    }
-
-    status = wlan_hdd_validate_context(pHddCtx);
-    if (0 != status)
-    {
-        return -EINVAL;
-    }
-    /* check the EXTScan Capability */
-    if ( (TRUE != pHddCtx->cfg_ini->fEnableEXTScan) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXTENDED_SCAN)) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXT_SCAN_ENHANCED)))
-    {
-        hddLog(VOS_TRACE_LEVEL_ERROR,
-               FL("EXTScan not enabled/supported by Firmware"));
-        return -EINVAL;
-    }
 
     if (nla_parse(tb, QCA_WLAN_VENDOR_ATTR_EXTSCAN_SUBCMD_CONFIG_PARAM_MAX,
                     data, dataLen,
@@ -5444,26 +5402,8 @@ static int __wlan_hdd_cfg80211_extscan_reset_bssid_hotlist(struct wiphy *wiphy,
 
     ENTER();
 
-    if (VOS_FTM_MODE == hdd_get_conparam()) {
-        hddLog(LOGE, FL("Command not allowed in FTM mode"));
+    if (!wlan_hdd_is_extscan_supported(pAdapter, pHddCtx))
         return -EINVAL;
-    }
-
-    status = wlan_hdd_validate_context(pHddCtx);
-    if (0 != status)
-    {
-        hddLog(LOGE, FL("HDD context is not valid"));
-        return -EINVAL;
-    }
-    /* check the EXTScan Capability */
-    if ( (TRUE != pHddCtx->cfg_ini->fEnableEXTScan) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXTENDED_SCAN)) ||
-         (TRUE != sme_IsFeatureSupportedByFW(EXT_SCAN_ENHANCED)))
-    {
-        hddLog(VOS_TRACE_LEVEL_ERROR,
-               FL("EXTScan not enabled/supported by Firmware"));
-        return -EINVAL;
-    }
 
     if (nla_parse(tb, QCA_WLAN_VENDOR_ATTR_EXTSCAN_SUBCMD_CONFIG_PARAM_MAX,
                     data, dataLen,
@@ -12504,6 +12444,8 @@ int __wlan_hdd_cfg80211_change_iface( struct wiphy *wiphy,
                                                   WLAN_HDD_P2P_DEVICE);
                      if (pP2pAdapter)
                      {
+                         wlan_hdd_release_intf_addr(pHddCtx,
+                                          pP2pAdapter->macAddressCurrent.bytes);
                          hdd_stop_adapter(pHddCtx, pP2pAdapter, VOS_TRUE);
                          hdd_deinit_adapter(pHddCtx, pP2pAdapter, TRUE);
                          hdd_close_adapter(pHddCtx, pP2pAdapter, VOS_TRUE);
