@@ -50,25 +50,3 @@ backup_file init.rc;
 write_boot;
 
 ## end install
-
-<<<<<<< HEAD
-		
-		
-=======
-# Add empty profile locations
-		if [ ! -d /data/media/Spectrum ]; then
-		  ui_print "Installing Spectrum...";
-		  mkdir /data/media/0/Spectrum;
-		fi
-		if [ ! -d /data/media/Spectrum/profiles ]; then
-		  mkdir /data/media/0/Spectrum/profiles;
-		fi
-		if [ ! -d /data/media/Spectrum/profiles/*.profile ]; then
-		  touch /data/media/0/Spectrum/profiles/balance.profile;
-		  touch /data/media/0/Spectrum/profiles/performance.profile;
-		  touch /data/media/0/Spectrum/profiles/battery.profile;
-		  touch /data/media/0/Spectrum/profiles/gaming.profile;
-		fi
-		
-		
->>>>>>> ebe78364bf0bca5a8c75345b965d863d646d5f3b
