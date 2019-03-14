@@ -4978,7 +4978,6 @@ static int smbchg_restricted_charging(struct smbchg_chip *chip, bool enable)
 
 	return rc;
 }
-
 static void handle_usb_removal(struct smbchg_chip *chip)
 {
 	struct power_supply *parallel_psy = get_parallel_psy(chip);
